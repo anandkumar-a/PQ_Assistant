@@ -14,7 +14,7 @@ from typing import Dict, Any, List
 from ingestion.extractors.document_loader import DocumentLoader
 from ingestion.cleaners.document_cleaner import DocumentCleaner
 from ingestion.metadata.metadata_extractor import MetadataExtractor
-from ingestion.chunking.recursive_chunker import RecursiveChunker
+from ingestion.chunkers.recursive_chunker import RecursiveChunker
 
 
 class IngestionPipeline:
