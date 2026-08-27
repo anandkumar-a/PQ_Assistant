@@ -1,0 +1,126 @@
+[
+    {
+        "question": "What is the recommended procedure when the machine displays fault code F123?",
+        "ground_truth": "The recommended procedure is to inspect the relevant sensor and its connection, verify the associated system components, correct any detected issue, and then reset the fault after confirming that the problem has been resolved.",
+        "relevant_documents": [
+            "fault_code_manual",
+            "maintenance_manual"
+        ],
+        "category": "fault_diagnosis",
+        "metadata": {
+            "fault_code": "F123",
+            "difficulty": "medium"
+        }
+    },
+    {
+        "question": "What should be checked before installing the replacement component?",
+        "ground_truth": "Before installing the replacement component, verify that the correct part number has been selected, inspect the component for damage, and ensure that the machine has been safely powered down according to the installation procedure.",
+        "relevant_documents": [
+            "installation_guide",
+            "spare_parts_catalogue",
+            "maintenance_manual"
+        ],
+        "category": "installation",
+        "metadata": {
+            "difficulty": "medium"
+        }
+    },
+    {
+        "question": "How can an operator troubleshoot an abnormal machine temperature?",
+        "ground_truth": "The operator should check the temperature sensor, cooling system, coolant level, connections, and related components. Any identified fault should be corrected before returning the machine to normal operation.",
+        "relevant_documents": [
+            "troubleshooting_manual",
+            "maintenance_manual"
+        ],
+        "category": "troubleshooting",
+        "metadata": {
+            "issue": "abnormal_temperature",
+            "difficulty": "medium"
+        }
+    },
+    {
+        "question": "Which document should be consulted to identify the correct spare part for a machine component?",
+        "ground_truth": "The spare parts catalogue should be consulted to identify the correct spare part and verify its corresponding part number.",
+        "relevant_documents": [
+            "spare_parts_catalogue"
+        ],
+        "category": "spare_parts",
+        "metadata": {
+            "difficulty": "easy"
+        }
+    },
+    {
+        "question": "What information is required to identify a replacement part?",
+        "ground_truth": "The component name, machine or model information, and the corresponding part number or compatible part reference should be verified before selecting a replacement part.",
+        "relevant_documents": [
+            "spare_parts_catalogue",
+            "product_manual"
+        ],
+        "category": "spare_parts",
+        "metadata": {
+            "difficulty": "easy"
+        }
+    },
+    {
+        "question": "What safety precautions should be followed before performing machine maintenance?",
+        "ground_truth": "The machine should be stopped and isolated from its energy sources before maintenance. The operator should follow the applicable lockout and safety procedures and use the required personal protective equipment.",
+        "relevant_documents": [
+            "maintenance_manual",
+            "safety_manual"
+        ],
+        "category": "safety",
+        "metadata": {
+            "difficulty": "easy"
+        }
+    },
+    {
+        "question": "What should be done if the same fault code appears again after resetting the machine?",
+        "ground_truth": "If the fault reappears after resetting, the underlying cause should be investigated using the applicable troubleshooting procedure rather than repeatedly resetting the machine. The relevant components, sensors, connections, and system conditions should be inspected.",
+        "relevant_documents": [
+            "fault_code_manual",
+            "troubleshooting_manual"
+        ],
+        "category": "fault_diagnosis",
+        "metadata": {
+            "fault_code": "F123",
+            "difficulty": "hard"
+        }
+    },
+    {
+        "question": "How should a newly installed component be verified before returning the machine to operation?",
+        "ground_truth": "The installation should be inspected for correct fitment and connections, the applicable checks or tests should be completed, and the machine should be operated according to the verification procedure to confirm that the component functions correctly.",
+        "relevant_documents": [
+            "installation_guide",
+            "maintenance_manual"
+        ],
+        "category": "installation",
+        "metadata": {
+            "difficulty": "hard"
+        }
+    },
+    {
+        "question": "Where can the operating specifications of a machine component be found?",
+        "ground_truth": "The applicable product or technical manual should be consulted for the component's operating specifications and technical requirements.",
+        "relevant_documents": [
+            "product_manual",
+            "technical_manual"
+        ],
+        "category": "technical_information",
+        "metadata": {
+            "difficulty": "easy"
+        }
+    },
+    {
+        "question": "What should an engineer do when the available documentation does not provide enough information to resolve a product query?",
+        "ground_truth": "The engineer should review related technical and maintenance documentation, verify the product and component information, and escalate the query when the available evidence is insufficient to provide a reliable resolution.",
+        "relevant_documents": [
+            "product_manual",
+            "maintenance_manual",
+            "service_bulletin"
+        ],
+        "category": "query_resolution",
+        "metadata": {
+            "difficulty": "hard"
+        }
+    }
+]
