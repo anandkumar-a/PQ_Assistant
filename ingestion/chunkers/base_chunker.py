@@ -5,6 +5,8 @@ Base class for all chunking strategies.
 from abc import ABC, abstractmethod
 from typing import List
 
+from config import constants
+
 
 class BaseChunker(ABC):
     """
@@ -13,8 +15,8 @@ class BaseChunker(ABC):
 
     def __init__(
         self,
-        chunk_size: int = 500,
-        chunk_overlap: int = 100,
+        chunk_size: int = constants.CHUNK_SIZE,
+        chunk_overlap: int = constants.CHUNK_OVERLAP,
     ):
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap

@@ -1,170 +1,132 @@
-
 """
-Request and response schemas for the PQ Assistant web API.
-
-Provides lightweight validation helpers for incoming requests
-and standardized response structures.
+Request validation schemas for the PQ Assistant web API.
 """
 
-from typing import Any, Dict, Optional
+from __future__ import annotations
+
+from typing import Any
 
 
-class QueryRequestSchema:
-    """Schema for validating PQ Assistant query requests."""
+MIN_QUERY_LENGTH = 2
+MAX_QUERY_LENGTH = 5000
 
-    REQUIRED_FIELDS = {"query"}
+DEFAULT_TOP_K = 5
+MAX_TOP_K = 20
 
-    @classmethod
-    def validate(cls, data: Optional[Dict[str, Any]]) -> tuple[bool, Optional[str]]:
-        """
-        Validate a query request.
-
-        Args:
-            data: Request payload.
-
-        Returns:
-            Tuple containing validation status and error message.
-        """
-        if not isinstance(data, dict):
-            return False, "Request body must be a JSON object."
-
-        query = data.get("query")
-
-        if query is None:
-            return False, "Query is required."
-
-        if not isinstance(query, str):
-            return False, "Query must be a string."
-
-        if not query.strip():
-            return False, "Query cannot be empty."
-
-        return True, None
+ALLOWED_UPLOAD_EXTENSIONS = {
+    "pdf",
+    "docx",
+    "txt",
+}
 
 
-class FeedbackRequestSchema:
-    """Schema for validating feedback requests."""
+def validate_query_payload(
+    payload: Any,
+) -> tuple[dict[str, Any] | None, str | None]:
+    """
+    Validate /query request data.
 
-    REQUIRED_FIELDS = {"query_id", "rating"}
+    Expected:
 
-    @classmethod
-    def validate(cls, data: Optional[Dict[str, Any]]) -> tuple[bool, Optional[str]]:
-        """
-        Validate a feedback request.
+    {
+        "query": "What is fault code E101?",
+        "top_k": 5
+    }
+    """
 
-        Args:
-            data: Request payload.
+    if not isinstance(payload, dict):
+        return None, "Request body must be a JSON object."
 
-        Returns:
-            Tuple containing validation status and error message.
-        """
-        if not isinstance(data, dict):
-            return False, "Request body must be a JSON object."
+    query = payload.get("query")
 
-        query_id = data.get("query_id")
-        rating = data.get("rating")
+    if query is None:
+        return None, "Missing required field: query."
 
-        if not query_id:
-            return False, "query_id is required."
+    if not isinstance(query, str):
+        return None, "Field 'query' must be a string."
 
-        if not isinstance(query_id, str):
-            return False, "query_id must be a string."
+    query = query.strip()
 
-        if rating is None:
-            return False, "rating is required."
+    if len(query) < MIN_QUERY_LENGTH:
+        return None, "Query must contain at least 2 characters."
 
-        if not isinstance(rating, (int, float)) or isinstance(rating, bool):
-            return False, "rating must be a number."
+    if len(query) > MAX_QUERY_LENGTH:
+        return None, (
+            f"Query must not exceed {MAX_QUERY_LENGTH} characters."
+        )
 
-        if not 1 <= rating <= 5:
-            return False, "rating must be between 1 and 5."
+    top_k = payload.get("top_k", DEFAULT_TOP_K)
 
-        return True, None
+    try:
+        top_k = int(top_k)
+    except (TypeError, ValueError):
+        return None, "Field 'top_k' must be an integer."
 
+    if top_k < 1:
+        return None, "Field 'top_k' must be at least 1."
 
-class QueryResponseSchema:
-    """Schema for standardized PQ query responses."""
+    if top_k > MAX_TOP_K:
+        return None, (
+            f"Field 'top_k' must not exceed {MAX_TOP_K}."
+        )
 
-    @staticmethod
-    def success(
-        query: str,
-        answer: str,
-        query_id: Optional[str] = None,
-        sources: Optional[list] = None,
-    ) -> Dict[str, Any]:
-        """
-        Build a successful query response.
-
-        Args:
-            query: Original user query.
-            answer: Generated answer.
-            query_id: Optional query identifier.
-            sources: Optional source documents.
-
-        Returns:
-            Standardized response dictionary.
-        """
-        response = {
-            "success": True,
-            "query": query,
-            "answer": answer,
-            "sources": sources or [],
-        }
-
-        if query_id:
-            response["query_id"] = query_id
-
-        return response
-
-    @staticmethod
-    def error(message: str) -> Dict[str, Any]:
-        """
-        Build a standardized error response.
-
-        Args:
-            message: Error description.
-
-        Returns:
-            Standardized error dictionary.
-        """
-        return {
-            "success": False,
-            "error": message,
-        }
+    return {
+        "query": query,
+        "top_k": top_k,
+    }, None
 
 
-class FeedbackResponseSchema:
-    """Schema for standardized feedback responses."""
+def validate_feedback_payload(
+    payload: Any,
+) -> tuple[dict[str, Any] | None, str | None]:
+    """
+    Validate /feedback request data.
+    """
 
-    @staticmethod
-    def success(query_id: str) -> Dict[str, Any]:
-        """
-        Build a successful feedback response.
+    if not isinstance(payload, dict):
+        return None, "Request body must be a JSON object."
 
-        Args:
-            query_id: Identifier of the related query.
+    query_id = payload.get("query_id")
 
-        Returns:
-            Standardized response dictionary.
-        """
-        return {
-            "success": True,
-            "query_id": query_id,
-            "message": "Feedback submitted successfully.",
-        }
+    if query_id is None:
+        return None, "Missing required field: query_id."
 
-    @staticmethod
-    def error(message: str) -> Dict[str, Any]:
-        """
-        Build a standardized feedback error response.
+    rating = payload.get("rating")
 
-        Args:
-            message: Error description.
+    if rating is None:
+        return None, "Missing required field: rating."
 
-        Returns:
-            Standardized error dictionary.
-        """
-        return {
-            "success": False,
-            "error": message,
-        }
+    try:
+        rating = int(rating)
+    except (TypeError, ValueError):
+        return None, "Field 'rating' must be an integer."
+
+    if not 1 <= rating <= 5:
+        return None, "Rating must be between 1 and 5."
+
+    feedback = payload.get("feedback", "")
+
+    if feedback is None:
+        feedback = ""
+
+    if not isinstance(feedback, str):
+        return None, "Field 'feedback' must be a string."
+
+    return {
+        "query_id": str(query_id),
+        "rating": rating,
+        "feedback": feedback.strip(),
+    }, None
+
+
+def allowed_upload_extension(filename: str) -> bool:
+    """
+    Check whether an uploaded document is supported.
+    """
+
+    if not filename or "." not in filename:
+        return False
+
+    extension = filename.rsplit(".", 1)[1].lower()
+
+    return extension in ALLOWED_UPLOAD_EXTENSIONS

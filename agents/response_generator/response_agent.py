@@ -185,21 +185,37 @@ Generate a helpful, accurate, and concise answer.
         )
 
         try:
-            response = self.llm.invoke(prompt)
+            chunks: List[str] = []
 
-            if hasattr(response, "content"):
-                answer = response.content
-            else:
-                answer = str(response)
+            # Always call Gemini through its streaming API, per the
+            # project's "never blocking calls" rule -- even for the
+            # non-SSE /query endpoint. Validation still happens on
+            # the fully-assembled answer below; only the raw HTTP
+            # call to Gemini is streaming here, not what the caller
+            # sees.
+            for chunk in self.llm.stream(prompt):
+
+                chunk_text = getattr(
+                    chunk,
+                    "content",
+                    None,
+                )
+
+                if chunk_text:
+                    chunks.append(chunk_text)
+
+            answer = "".join(chunks)
 
             logger.info(
-                "Response generated successfully."
+                "Response generated successfully (%d stream chunks).",
+                len(chunks),
             )
 
             return {
                 "query": query,
                 "intent": intent,
                 "answer": answer,
+                "answer_chunks": chunks,
                 "context": context,
                 "documents_used": len(
                     retrieved_documents[

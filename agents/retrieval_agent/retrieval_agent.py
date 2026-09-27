@@ -25,6 +25,7 @@ class RetrievalAgent:
     def __init__(
         self,
         hybrid_retriever=None,
+        embedding_generator=None,
         default_top_k: int = 5,
     ):
         """
@@ -33,11 +34,17 @@ class RetrievalAgent:
         Args:
             hybrid_retriever:
                 Instance of the HybridRetriever.
+            embedding_generator:
+                Instance of EmbeddingGenerator, used to embed the
+                search query before dense retrieval. Required for
+                HybridRetriever.retrieve(), which needs a
+                query_embedding alongside the raw query text.
             default_top_k:
                 Default number of documents to retrieve.
         """
 
         self.hybrid_retriever = hybrid_retriever
+        self.embedding_generator = embedding_generator
         self.default_top_k = default_top_k
 
     def build_search_query(
@@ -112,6 +119,13 @@ class RetrievalAgent:
                 "HybridRetriever has not been initialized."
             )
 
+        if self.embedding_generator is None:
+            raise ValueError(
+                "EmbeddingGenerator has not been initialized. "
+                "It is required to embed the search query before "
+                "dense retrieval."
+            )
+
         top_k = top_k or self.default_top_k
 
         search_query = self.build_search_query(
@@ -124,8 +138,13 @@ class RetrievalAgent:
         )
 
         try:
+            query_embedding = self.embedding_generator.generate_embedding(
+                search_query
+            )
+
             results = self.hybrid_retriever.retrieve(
                 query=search_query,
+                query_embedding=query_embedding,
                 top_k=top_k,
             )
 

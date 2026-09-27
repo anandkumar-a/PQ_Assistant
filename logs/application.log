@@ -1,0 +1,30 @@
+2026-08-28 20:16:59,009 | INFO | pq_assistant | PQ Assistant v1.0.0 Flask application created.
+2026-08-28 20:17:14,096 | INFO | pq_assistant | PQ Assistant v1.0.0 Flask application created.
+2026-08-28 20:17:14,096 | INFO | pq_assistant | ======================================================================
+2026-08-28 20:17:14,097 | INFO | pq_assistant | PQ ASSISTANT
+2026-08-28 20:17:14,097 | INFO | pq_assistant | Agentic AI-Based Product Query Assistant
+2026-08-28 20:17:14,097 | INFO | pq_assistant | ======================================================================
+2026-08-28 20:17:14,098 | INFO | pq_assistant | Project Root : D:\pq_assistant
+2026-08-28 20:17:14,098 | INFO | pq_assistant | Host         : 0.0.0.0
+2026-08-28 20:17:14,099 | INFO | pq_assistant | Port         : 5000
+2026-08-28 20:17:14,100 | INFO | pq_assistant | Debug        : False
+2026-08-28 20:17:14,100 | INFO | pq_assistant | Threaded     : True
+2026-08-28 20:17:14,101 | INFO | pq_assistant | ----------------------------------------------------------------------
+2026-08-28 20:17:14,101 | INFO | pq_assistant | Workflow:
+2026-08-28 20:17:14,101 | INFO | pq_assistant |   Query Understanding
+2026-08-28 20:17:14,102 | INFO | pq_assistant |         ↓
+2026-08-28 20:17:14,103 | INFO | pq_assistant |   Hybrid Retrieval
+2026-08-28 20:17:14,103 | INFO | pq_assistant |         ↓
+2026-08-28 20:17:14,103 | INFO | pq_assistant |   PQ Retrieval
+2026-08-28 20:17:14,104 | INFO | pq_assistant |         ↓
+2026-08-28 20:17:14,104 | INFO | pq_assistant |   Response Generation
+2026-08-28 20:17:14,104 | INFO | pq_assistant |         ↓
+2026-08-28 20:17:14,104 | INFO | pq_assistant |   Validation
+2026-08-28 20:17:14,105 | INFO | pq_assistant |         ↓
+2026-08-28 20:17:14,107 | INFO | pq_assistant |   Final Answer
+2026-08-28 20:17:14,108 | INFO | pq_assistant |         ↓
+2026-08-28 20:17:14,109 | INFO | pq_assistant |   Feedback / Analytics
+2026-08-28 20:17:14,109 | INFO | pq_assistant | ----------------------------------------------------------------------
+2026-08-28 20:17:14,110 | INFO | pq_assistant | Application URL: http://localhost:5000
+2026-08-28 20:17:14,110 | INFO | pq_assistant | ======================================================================
+2026-08-28 20:17:14,110 | INFO | pq_assistant | Starting PQ Assistant server...

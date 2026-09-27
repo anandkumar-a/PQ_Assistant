@@ -1,6 +1,7 @@
 """
-Web package for the PQ Assistant.
-
-Contains Flask application setup, routes, request/response
-schemas, and web middleware.
+PQ Assistant Web Package.
 """
+
+from .app import create_app
+
+__all__ = ["create_app"]

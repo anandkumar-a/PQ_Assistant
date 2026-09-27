@@ -1,72 +1,135 @@
 """
-Centralized logging configuration for the PQ Assistant application.
-
-This module configures logging once and provides a reusable logger
-for all project modules.
+Logging configuration for PQ Assistant.
 """
 
-from pathlib import Path
 import logging
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
+
+from config.settings import LOG_DIR, LOG_LEVEL
 
 
-# ---------------------------------------------------------
-# Create logs directory if it does not exist
-# ---------------------------------------------------------
-
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-LOG_DIR = PROJECT_ROOT / "logs"
-
-LOG_DIR.mkdir(exist_ok=True)
-
-LOG_FILE = LOG_DIR / "application.log"
-
-
-# ---------------------------------------------------------
-# Log format
-# ---------------------------------------------------------
-
-LOG_FORMAT = (
-    "%(asctime)s | "
-    "%(levelname)-8s | "
-    "%(name)s | "
-    "%(message)s"
-)
-
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-
-
-# ---------------------------------------------------------
-# Configure logging
-# ---------------------------------------------------------
-
-logging.basicConfig(
-    level=logging.INFO,
-    format=LOG_FORMAT,
-    datefmt=DATE_FORMAT,
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler(LOG_FILE, encoding="utf-8")
-    ]
-)
-
-
-# ---------------------------------------------------------
-# Function to get logger
-# ---------------------------------------------------------
-
-def get_logger(name: str) -> logging.Logger:
+def configure_logging() -> logging.Logger:
     """
-    Return a configured logger.
+    Configure application logging.
 
-    Parameters
-    ----------
-    name : str
-        Usually __name__ of the calling module.
-
-    Returns
-    -------
-    logging.Logger
-        Configured logger instance.
+    Returns:
+        logging.Logger: PQ Assistant logger.
     """
-    return logging.getLogger(name)
+
+    # --------------------------------------------------------------
+    # Create log directory
+    # --------------------------------------------------------------
+
+    log_directory = Path(LOG_DIR)
+
+    log_directory.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    # --------------------------------------------------------------
+    # Determine logging level
+    # --------------------------------------------------------------
+
+    level = getattr(
+        logging,
+        LOG_LEVEL.upper(),
+        logging.INFO,
+    )
+
+    # --------------------------------------------------------------
+    # Application logger
+    # --------------------------------------------------------------
+
+    logger = logging.getLogger(
+        "pq_assistant"
+    )
+
+    logger.setLevel(level)
+
+    # Prevent duplicate handlers
+    if logger.handlers:
+        return logger
+
+    # --------------------------------------------------------------
+    # Formatter
+    # --------------------------------------------------------------
+
+    formatter = logging.Formatter(
+        "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+    )
+
+    # --------------------------------------------------------------
+    # Console handler
+    # --------------------------------------------------------------
+
+    console_handler = logging.StreamHandler()
+
+    console_handler.setLevel(level)
+
+    console_handler.setFormatter(
+        formatter
+    )
+
+    # --------------------------------------------------------------
+    # Application log
+    # --------------------------------------------------------------
+
+    application_log = (
+        log_directory / "application.log"
+    )
+
+    application_handler = RotatingFileHandler(
+        application_log,
+        maxBytes=5 * 1024 * 1024,
+        backupCount=3,
+        encoding="utf-8",
+    )
+
+    application_handler.setLevel(level)
+
+    application_handler.setFormatter(
+        formatter
+    )
+
+    # --------------------------------------------------------------
+    # Error log
+    # --------------------------------------------------------------
+
+    error_log = (
+        log_directory / "error.log"
+    )
+
+    error_handler = RotatingFileHandler(
+        error_log,
+        maxBytes=5 * 1024 * 1024,
+        backupCount=3,
+        encoding="utf-8",
+    )
+
+    error_handler.setLevel(
+        logging.ERROR
+    )
+
+    error_handler.setFormatter(
+        formatter
+    )
+
+    # --------------------------------------------------------------
+    # Register handlers
+    # --------------------------------------------------------------
+
+    logger.addHandler(
+        console_handler
+    )
+
+    logger.addHandler(
+        application_handler
+    )
+
+    logger.addHandler(
+        error_handler
+    )
+
+    return logger
