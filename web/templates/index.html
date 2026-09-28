@@ -1,112 +1,568 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PQ Assistant | Agentic AI Enterprise Knowledge Retrieval</title>
+    <meta name="description" content="Agentic AI-Based Product Query Assistant with Multi-Agent RAG and real-time enterprise knowledge retrieval.">
 
-    <title>PQ Assistant</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='css/style.css') }}"
-    >
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Marked.js for Markdown Rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
 </head>
-
 <body>
 
-    <!-- Header -->
-    <header class="header">
-        <div>
-            <h1>PQ Assistant</h1>
-            <p>Agentic AI-Based Product Query Assistant</p>
+    <!-- App Container -->
+    <div class="app-layout">
+
+        <!-- Top Navigation Header -->
+        <header class="header-nav">
+            <div class="header-brand">
+                <div class="brand-logo-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5"></path>
+                        <path d="M2 12l10 5 10-5"></path>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <div class="brand-title-row">
+                        <h1>PQ Assistant</h1>
+                        <span class="badge badge-primary">Multi-Agent RAG v1.0</span>
+                    </div>
+                    <p class="brand-subtitle">Agentic AI Enterprise Knowledge Retrieval System</p>
+                </div>
+            </div>
+
+            <!-- Header Action Controls -->
+            <div class="header-actions">
+                <!-- System Health Status Pill -->
+                <button id="healthStatusBtn" class="status-pill green" title="Click to check system health">
+                    <span class="pulse-dot"></span>
+                    <span id="healthStatusText">Pipeline Ready</span>
+                </button>
+
+                <!-- History Drawer Button -->
+                <button id="historyToggleBtn" class="icon-btn" title="Query History" aria-label="Open Query History">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span class="icon-btn-label">History</span>
+                </button>
+
+                <!-- Document Upload Button -->
+                <button id="openUploadModalBtn" class="icon-btn" title="Upload Knowledge Docs" aria-label="Upload Documents">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span class="icon-btn-label">Upload</span>
+                </button>
+
+                <!-- Analytics Dashboard Button -->
+                <button id="openAnalyticsModalBtn" class="icon-btn" title="Analytics Dashboard" aria-label="Analytics">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                    <span class="icon-btn-label">Analytics</span>
+                </button>
+
+                <!-- Dark / Light Mode Switcher -->
+                <button id="themeToggleBtn" class="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle dark/light theme">
+                    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Interface Container -->
+        <main class="main-content">
+            
+            <!-- Quick Preset Prompts Bar -->
+            <section class="quick-prompts-container">
+                <span class="quick-prompts-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                    Suggested Queries:
+                </span>
+                <div class="preset-chips">
+                    <button class="chip-btn" data-query="What are the main architecture components of PQ Assistant?">
+                        🤖 System Architecture
+                    </button>
+                    <button class="chip-btn" data-query="How does hybrid vector retrieval improve accuracy over dense search?">
+                        🔍 Hybrid Retrieval
+                    </button>
+                    <button class="chip-btn" data-query="What enterprise document formats are supported for ingestion?">
+                        📄 Supported File Formats
+                    </button>
+                    <button class="chip-btn" data-query="Explain how Agent 4 validates RAG answers before delivery.">
+                        🛡️ Answer Validation
+                    </button>
+                </div>
+            </section>
+
+            <!-- Query Section Card -->
+            <section class="glass-card query-card">
+                
+                <div class="card-header">
+                    <div class="card-title">
+                        <h2>Ask a Product Query</h2>
+                        <p>Query enterprise documentation with multi-agent RAG verification</p>
+                    </div>
+
+                    <!-- Mode Badges / Settings Indicator -->
+                    <div class="query-meta-badges">
+                        <button id="toggleAdvancedBtn" class="btn-text" type="button">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                            </svg>
+                            Settings
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Advanced Options Panel (Collapsible) -->
+                <div id="advancedOptionsPanel" class="advanced-panel hidden">
+                    <div class="panel-grid">
+                        
+                        <!-- Top K Slider -->
+                        <div class="control-group">
+                            <label for="topKInput">
+                                Top-K Documents: <strong id="topKValue">5</strong>
+                            </label>
+                            <input type="range" id="topKInput" min="1" max="10" value="5" step="1">
+                        </div>
+
+                        <!-- SSE Streaming Toggle Switch -->
+                        <div class="control-group switch-group">
+                            <label for="streamToggle" class="switch-label">
+                                <span>Real-time SSE Streaming</span>
+                                <small>Replay Gemini response tokens live</small>
+                            </label>
+                            <label class="switch">
+                                <input type="checkbox" id="streamToggle" checked>
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Query Input Box -->
+                <div class="input-wrapper">
+                    <textarea
+                        id="queryInput"
+                        class="query-input"
+                        placeholder="Type your product query here... (e.g. 'What are the installation prerequisites for deployment?')"
+                        aria-label="Product query"
+                        rows="3"
+                        maxlength="1000"
+                    ></textarea>
+                    
+                    <div class="input-footer">
+                        <div class="char-count">
+                            <span id="charCounter">0</span> / 1000
+                        </div>
+                        <div class="shortcut-hint">
+                            Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to submit
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Toolbar -->
+                <div class="button-group">
+                    <button
+                        id="submitButton"
+                        class="btn btn-primary btn-glow"
+                        type="button"
+                    >
+                        <svg class="send-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                        <span>Ask PQ Assistant</span>
+                    </button>
+
+                    <button
+                        id="voiceInputBtn"
+                        class="btn btn-secondary"
+                        type="button"
+                        title="Dictate query with voice"
+                    >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                        <span>Voice</span>
+                    </button>
+
+                    <button
+                        id="clearButton"
+                        class="btn btn-ghost"
+                        type="button"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                        <span>Clear</span>
+                    </button>
+                </div>
+
+                <!-- Error Toast Banner inside Query Card -->
+                <div id="errorMessage" class="error-banner hidden" role="alert">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                    <span id="errorText">An error occurred.</span>
+                </div>
+
+            </section>
+
+            <!-- Animated Multi-Agent Pipeline Stepper -->
+            <section id="pipelineStepper" class="glass-card stepper-card hidden">
+                <div class="stepper-header">
+                    <h3>
+                        <span class="spinner-ring"></span>
+                        Processing Multi-Agent RAG Pipeline
+                    </h3>
+                    <button id="cancelStreamBtn" class="btn-text btn-danger-text" type="button">Cancel</button>
+                </div>
+
+                <div class="stepper-steps">
+                    
+                    <!-- Step 1 -->
+                    <div class="step-item" id="step-agent1">
+                        <div class="step-icon">🧠</div>
+                        <div class="step-content">
+                            <div class="step-title">Agent 1: Query Understanding</div>
+                            <div class="step-desc">Parsing query intent & expanding search keyphrases</div>
+                        </div>
+                        <div class="step-status-indicator"></div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="step-item" id="step-agent2">
+                        <div class="step-icon">🔍</div>
+                        <div class="step-content">
+                            <div class="step-title">Agent 2: Hybrid Vector Retrieval</div>
+                            <div class="step-desc">Searching dense embeddings & sparse BM25 index</div>
+                        </div>
+                        <div class="step-status-indicator"></div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="step-item" id="step-agent3">
+                        <div class="step-icon">🤖</div>
+                        <div class="step-content">
+                            <div class="step-title">Agent 3: Gemini RAG Generator</div>
+                            <div class="step-desc">Synthesizing ground-truth response from context</div>
+                        </div>
+                        <div class="step-status-indicator"></div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="step-item" id="step-agent4">
+                        <div class="step-icon">🛡️</div>
+                        <div class="step-content">
+                            <div class="step-title">Agent 4: Source Validation</div>
+                            <div class="step-desc">Verifying citations & calculating confidence score</div>
+                        </div>
+                        <div class="step-status-indicator"></div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Response Section Card -->
+            <section id="responseCard" class="glass-card response-card">
+                
+                <!-- Response Header with Meta Badges & Actions -->
+                <div class="response-header">
+                    <div class="response-title-group">
+                        <h2>Assistant Answer</h2>
+                        
+                        <!-- Response Metric Badges -->
+                        <div class="response-badges">
+                            <!-- Confidence Badge -->
+                            <div id="confidenceBadge" class="metric-badge hidden" title="RAG Verification Confidence">
+                                <span class="badge-icon">📊</span>
+                                <span id="confidenceText">Confidence: --%</span>
+                            </div>
+
+                            <!-- Response Time Badge -->
+                            <div id="responseTimeBadge" class="metric-badge hidden" title="Processing Time">
+                                <span class="badge-icon">⚡</span>
+                                <span id="responseTimeText">0.00s</span>
+                            </div>
+
+                            <!-- Validation Status Badge -->
+                            <div id="validationBadge" class="metric-badge hidden" title="Agent 4 Verification Status">
+                                <span class="badge-icon">🛡️</span>
+                                <span id="validationText">Verified</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Output Actions Toolbar -->
+                    <div class="output-actions">
+                        <button id="copyAnswerBtn" class="icon-action-btn" title="Copy answer to clipboard">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            <span>Copy</span>
+                        </button>
+                        
+                        <button id="ttsAnswerBtn" class="icon-action-btn" title="Read answer aloud">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                            </svg>
+                            <span>Listen</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Answer Content Box -->
+                <div class="response-body">
+                    <div id="loadingMessage" class="loading-state hidden">
+                        <div class="loading-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <p>Retrieving enterprise knowledge and synthesizing answer...</p>
+                    </div>
+
+                    <div id="responseContent" class="response-content placeholder-mode">
+                        <div class="placeholder-empty">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            <p>Your verified product answer will appear here in real-time.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Source Documents Accordion Section -->
+                <div id="sourcesContainer" class="sources-section hidden">
+                    <button id="toggleSourcesBtn" class="sources-toggle-btn" type="button">
+                        <div class="sources-toggle-title">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                            </svg>
+                            <span>Retrieved Source Documents</span>
+                            <span id="sourceCountBadge" class="count-badge">0</span>
+                        </div>
+                        <svg class="chevron-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+
+                    <div id="sourcesList" class="sources-list hidden">
+                        <!-- Dynamically populated source cards -->
+                    </div>
+                </div>
+
+                <!-- User Interactive Feedback Widget -->
+                <div id="feedbackSection" class="feedback-widget hidden">
+                    <div class="feedback-prompt">
+                        <span>Was this answer helpful?</span>
+                        <div class="star-rating" id="starRating">
+                            <span class="star" data-value="1" title="1 Star - Poor">★</span>
+                            <span class="star" data-value="2" title="2 Stars - Fair">★</span>
+                            <span class="star" data-value="3" title="3 Stars - Good">★</span>
+                            <span class="star" data-value="4" title="4 Stars - Very Good">★</span>
+                            <span class="star" data-value="5" title="5 Stars - Excellent">★</span>
+                        </div>
+                    </div>
+
+                    <div id="feedbackCommentBox" class="feedback-comment-wrapper hidden">
+                        <input type="text" id="feedbackCommentInput" placeholder="Optional comments or suggestions..." />
+                        <button id="submitFeedbackBtn" class="btn btn-primary btn-sm">Submit Feedback</button>
+                    </div>
+
+                    <div id="feedbackThankYou" class="thank-you-msg hidden">
+                        ✓ Thank you! Your feedback helps train our multi-agent model.
+                    </div>
+                </div>
+
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>
+                <strong>PQ Assistant</strong> &copy; 2026 | Multi-Agent RAG Enterprise Knowledge Retrieval
+            </p>
+            <div class="footer-links">
+                <a href="/health" target="_blank">API Health</a>
+                <span>•</span>
+                <a href="#" id="footerAnalyticsLink">Analytics</a>
+                <span>•</span>
+                <a href="#" id="footerUploadLink">Knowledge Ingestion</a>
+            </div>
+        </footer>
+
+    </div>
+
+
+    <!-- ============================================================
+         MODAL 1: Document Upload Modal
+         ============================================================ -->
+    <div id="uploadModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="uploadModalTitle">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="uploadModalTitle">Upload Enterprise Documents</h3>
+                <button class="modal-close-btn" data-close-modal="uploadModal" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-desc">Upload product manuals, specs, or support documentation to ingest into the vector database (.pdf, .docx, .txt).</p>
+                
+                <!-- Drag and Drop Dropzone -->
+                <div id="dropzone" class="dropzone">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <p><strong>Drag & Drop files here</strong> or click to browse</p>
+                    <small>Supported formats: PDF, DOCX, TXT (Max 50MB)</small>
+                    <input type="file" id="fileInput" accept=".pdf,.docx,.txt" class="hidden-file-input">
+                </div>
+
+                <!-- Selected File Preview & Progress -->
+                <div id="uploadProgressContainer" class="upload-progress-box hidden">
+                    <div class="file-info-row">
+                        <span id="uploadFileName">filename.pdf</span>
+                        <span id="uploadFileSize">0 KB</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div id="uploadProgressBar" class="progress-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <div id="uploadStatusMessage" class="status-msg hidden"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" data-close-modal="uploadModal">Close</button>
+                <button id="startUploadBtn" class="btn btn-primary" disabled>Start Upload</button>
+            </div>
         </div>
-    </header>
+    </div>
 
 
-    <!-- Main Content -->
-    <main class="container">
+    <!-- ============================================================
+         MODAL 2: Analytics Dashboard Modal
+         ============================================================ -->
+    <div id="analyticsModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="analyticsModalTitle">
+        <div class="modal-card modal-lg">
+            <div class="modal-header">
+                <h3 id="analyticsModalTitle">System Analytics & Health Dashboard</h3>
+                <button class="modal-close-btn" data-close-modal="analyticsModal" aria-label="Close modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                
+                <!-- Stat Cards Grid -->
+                <div class="analytics-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="statTotalQueries">--</div>
+                        <div class="stat-label">Total Queries Processed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statAvgLatency">--s</div>
+                        <div class="stat-label">Avg Latency</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statValidationRate">--%</div>
+                        <div class="stat-label">Validation Success Rate</div>
+                    </div>
+                </div>
 
-        <!-- Query Section -->
-        <section class="query-card">
-
-            <h2>Ask a Product Query</h2>
-
-            <textarea
-                id="queryInput"
-                class="query-input"
-                placeholder="Enter your product-related question..."
-                aria-label="Product query"
-            ></textarea>
-
-            <div class="button-group">
-
-                <button
-                    id="submitButton"
-                    class="btn btn-primary"
-                    type="button"
-                >
-                    Ask PQ Assistant
-                </button>
-
-                <button
-                    id="clearButton"
-                    class="btn btn-secondary"
-                    type="button"
-                >
-                    Clear
-                </button>
+                <!-- Detailed Analytics Tables / Bars -->
+                <div class="analytics-section">
+                    <h4>Retrieved Knowledge Metrics</h4>
+                    <div class="metric-bar-group">
+                        <div class="metric-bar-label">Vector Database Collections</div>
+                        <div class="metric-bar-track">
+                            <div class="metric-bar-fill" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    <div class="metric-bar-group">
+                        <div class="metric-bar-label">Hybrid BM25 Keyword Search Coverage</div>
+                        <div class="metric-bar-track">
+                            <div class="metric-bar-fill green-fill" style="width: 92%;"></div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
-
-            <!-- Loading Message -->
-            <div
-                id="loadingMessage"
-                class="loading"
-                role="status"
-            >
-                Processing your query...
+            <div class="modal-footer">
+                <button id="refreshAnalyticsBtn" class="btn btn-secondary">Refresh Data</button>
+                <button class="btn btn-primary" data-close-modal="analyticsModal">Close</button>
             </div>
-
-            <!-- Error Message -->
-            <div
-                id="errorMessage"
-                class="error-message"
-                role="alert"
-            ></div>
-
-        </section>
+        </div>
+    </div>
 
 
-        <!-- Response Section -->
-        <section class="response-card">
-
-            <h2>Assistant Response</h2>
-
-            <div
-                id="responseContent"
-                class="response-content"
-            >
-                Your answer will appear here.
+    <!-- ============================================================
+         DRAWER: Query History Side Drawer
+         ============================================================ -->
+    <div id="historyDrawer" class="drawer-overlay hidden">
+        <div class="drawer-card">
+            <div class="drawer-header">
+                <h3>Query History</h3>
+                <button id="closeHistoryDrawerBtn" class="modal-close-btn" aria-label="Close drawer">&times;</button>
             </div>
+            <div class="drawer-body">
+                <div class="history-search">
+                    <input type="text" id="historySearchInput" placeholder="Search past queries...">
+                </div>
+                <div id="historyList" class="history-list">
+                    <!-- History items will be dynamically generated here -->
+                </div>
+            </div>
+            <div class="drawer-footer">
+                <button id="clearHistoryBtn" class="btn btn-ghost btn-sm">Clear History</button>
+            </div>
+        </div>
+    </div>
 
-        </section>
 
-    </main>
+    <!-- Floating Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
 
-
-    <!-- Footer -->
-    <footer class="footer">
-        <p>
-            PQ Assistant &copy; 2026 |
-            Multi-Agent RAG Enterprise Knowledge Retrieval
-        </p>
-    </footer>
-
-
-    <!-- JavaScript -->
-    <script
-        src="{{ url_for('static', filename='js/app.js') }}"
-    ></script>
+    <!-- JavaScript Bundle -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 
 </body>
 </html>
